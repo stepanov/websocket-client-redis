@@ -7,11 +7,18 @@ const HOST = process.env.WS_HOST || 'localhost';
 const PORT = process.env.WS_PORT || 8080;
 
 const wsClient = new Websocket('ws://' + HOST + ':' + PORT);
-const redisClient = new Redis.createClient({
-    port: process.env.REDIS_PORT, 
-    host: process.env.REDIS_HOST,
-    password: process.env.REDIS_PASSWORD 
-}); 
+
+wsClient.on('open', () => {
+    console.log('Open connection ...');
+});
+
+wsClient.on('close', () => {
+    console.log('Close connection ...');
+});
+
+wsClient.on('error', (e) => {
+    console.log('Connection error: ' + e);
+});
 
 wsClient.on('message', (data) => {
     let msg = JSON.parse(data);
@@ -21,6 +28,11 @@ wsClient.on('message', (data) => {
     });
 });
 
+const redisClient = new Redis.createClient({
+    port: process.env.REDIS_PORT, 
+    host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD 
+}); 
 redisClient.on('connect', () => {
     console.log('Redis client connected');
 });
